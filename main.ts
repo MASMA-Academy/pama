@@ -1,8 +1,9 @@
 import express from "express";
-import details from "./details.json" with { type: "json" };
 
 import { load } from "https://deno.land/std@0.224.0/dotenv/mod.ts";
 import { Pool } from "https://deno.land/x/postgres@v0.19.3/mod.ts";
+
+import userRouter from "./routes/userRoutes.ts";
 
 const env = await load();
 
@@ -47,6 +48,8 @@ app.get("/", (req, res) => {
 app.get("/details", (req, res) => {
   res.send(details);
 });
+
+app.use("/users", userRouter);
 
 // Test DB connection route (optional)
 app.get("/db-test", async (req, res) => {
