@@ -2,13 +2,19 @@ import express from "express";
 import { pool } from "./db.ts";
 import userRouter from "./routes/userRoutes.ts";
 import taskRouter from "./routes/taskRoutes.ts";
+import { join, dirname, fromFileUrl } from "https://deno.land/std@0.203.0/path/mod.ts";
 
 const app = express();
 app.use(express.json());
 
-// Home route
+const __dirname = dirname(fromFileUrl(import.meta.url));
+
+// Serve static files from the 'public' directory
+app.use(express.static(join(__dirname, "public")));
+
+// Home route - serve login page
 app.get("/", (req, res) => {
-  res.send("Welcome to the PAMA - House Chore API!");
+  res.sendFile(join(__dirname, "public", "login.html"));
 });
 
 //REGISTER route
