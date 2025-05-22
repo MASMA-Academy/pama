@@ -1,38 +1,8 @@
-// @ts-types="npm:@types/express@4.17.15"
 import express from "express";
 import { pool } from "./db.ts";
 import userRouter from "./routes/userRoutes.ts";
-
-const env = await load();
-
-const pool = new Pool({
-  user: env.DB_USER,
-  password: env.DB_PASSWORD,
-  database: env.DB_NAME,
-  hostname: env.DB_HOST,
-  port: Number(env.DB_PORT),
-  tls: {
-    enabled: true,
-    enforce: false,
-  },
-}, 3, true);
-
-async function testDbConnection() {
-  let client;
-  try {
-    client = await pool.connect();  // Acquire client from pool
-    const result = await client.queryObject("SELECT NOW()");
-    console.log("✅ DB Connection successful! Current time:", result.rows[0]);
-  } catch (error) {
-    // Use error.message, pool has no .message
-    console.error("❌ DB Connection failed:", error.message);
-  } finally {
-    if (client) client.release();  // Release client back to pool
-  }
-}
-
-// Test DB connection on server start
-testDbConnection();
+import taskRouter from "./routes/taskRoutes.ts";
+import { join, dirname, fromFileUrl } from "https://deno.land/std@0.203.0/path/mod.ts";
 
 const app = express();
 app.use(express.json());
@@ -47,13 +17,8 @@ app.get("/", (req, res) => {
   res.sendFile(join(__dirname, "public", "login.html"));
 });
 
-// Details route
-app.get("/details", (req, res) => {
-  res.send(details);
-});
-
+//REGISTER route
 app.use("/users", userRouter);
-app.use("/rewards", rewardRouter);
 
 //TASK route
 app.use("/tasks", taskRouter);
@@ -80,8 +45,9 @@ async function testDbConnection() {
     client = await pool.connect();
     const result = await client.queryObject("SELECT NOW()");
     console.log("DB Connection successful! Current time:", result.rows[0]);
-  } catch (error) {
-    console.error("DB Connection failed:", error.message);
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error("DB Connection failed:", errorMessage);
   } finally {
     client?.release();
   }
