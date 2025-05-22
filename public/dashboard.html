@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f6f8fa;
+      margin: 0;
+      padding: 0;
+      color: #222;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 24px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    }
+    h1 {
+      text-align: center;
+      font-weight: 600;
+      margin-bottom: 32px;
+      color: #2d6cdf;
+    }
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 32px;
+    }
+    .card {
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .card h2 {
+      margin: 0 0 12px 0;
+      font-size: 1.2rem;
+      color: #2d6cdf;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    label {
+      font-size: 0.95rem;
+      color: #555;
+    }
+    input, select, textarea, button {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      font-size: 1rem;
+    }
+    button {
+      background: #2d6cdf;
+      color: #fff;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #1a4fa0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+    }
+    th {
+      background: #e5e7eb;
+      color: #2d6cdf;
+      font-weight: 600;
+    }
+    .reward-btn {
+      background: #10b981;
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background 0.2s;
+    }
+    .reward-btn:hover {
+      background: #059669;
+    }
+    @media (max-width: 700px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      .container {
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Family Dashboard</h1>
+    <div class="dashboard-grid">
+      <!-- Task List -->
+      <div class="card" id="task-list-card">
+        <h2>All Tasks</h2>
+        <table id="tasks-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Assigned To</th>
+              <th>Status</th>
+              <th>Created At</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Tasks will be loaded here -->
+          </tbody>
+        </table>
+      </div>
+      <!-- Add Member -->
+      <div class="card">
+        <h2>Add Member</h2>
+        <form id="add-member-form">
+          <div class="form-group">
+            <label for="member-email">Member Email</label>
+            <select id="member-email" required>
+              <option value="">Select email</option>
+              <!-- Emails will be loaded here -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="member-name">Name</label>
+            <input type="text" id="member-name" readonly>
+          </div>
+          <div class="form-group">
+            <label for="member-age">Age</label>
+            <input type="number" id="member-age" min="0" required>
+          </div>
+          <div class="form-group">
+            <label for="member-gender">Gender</label>
+            <select id="member-gender" required>
+              <option value="">Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+          <button type="submit">Add Member</button>
+        </form>
+        <div id="add-member-msg"></div>
+      </div>
+      <!-- Add Task -->
+      <div class="card">
+        <h2>Add Task</h2>
+        <form id="add-task-form">
+          <div class="form-group">
+            <label for="task-title">Title</label>
+            <input type="text" id="task-title" required>
+          </div>
+          <div class="form-group">
+            <label for="task-desc">Description</label>
+            <textarea id="task-desc" rows="2" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="task-assigned">Assign To</label>
+            <select id="task-assigned" required>
+              <option value="">Select member</option>
+              <!-- Members will be loaded here -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="task-status">Status</label>
+            <select id="task-status" required>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+          <button type="submit">Add Task</button>
+        </form>
+        <div id="add-task-msg"></div>
+      </div>
+      <!-- Rewards -->
+      <div class="card">
+        <h2>Rewards</h2>
+        <table id="rewards-table">
+          <thead>
+            <tr>
+              <th>Member</th>
+              <th>Points</th>
+              <th>Last Updated</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Rewards will be loaded here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Placeholder: Replace with your API endpoints
+    const API = {
+      getTasks: '/api/tasks',
+      getUsers: '/api/users',
+      addMember: '/api/add-member',
+      addTask: '/api/add-task',
+      getFamilyMembers: '/api/family-members',
+    };
+
+    // Load all data on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadTasks();
+      loadUsers();
+      loadRewards();
+    });
+
+    // Load Tasks
+    function loadTasks() {
+      fetch(API.getTasks)
+        .then(res => res.json())
+        .then(tasks => {
+          const tbody = document.querySelector('#tasks-table tbody');
+          tbody.innerHTML = '';
+          tasks.forEach(task => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${task.title}</td>
+              <td>${task.description}</td>
+              <td>${task.assigned_to_name || task.assigned_to}</td>
+              <td>${task.status}</td>
+              <td>${new Date(task.created_at).toLocaleString()}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(() => {
+          document.querySelector('#tasks-table tbody').innerHTML = '<tr><td colspan="5">Failed to load tasks.</td></tr>';
+        });
+    }
+
+    // Populate member email dropdown and assign-to dropdown
+    async function loadUsers() {
+      const res = await fetch(API.getUsers);
+      const users = await res.json();
+      const emailSelect = document.getElementById('member-email');
+      const assignSelect = document.getElementById('task-assigned');
+      emailSelect.innerHTML = '<option value="">Select email</option>';
+      assignSelect.innerHTML = '<option value="">Select member</option>';
+      users.forEach(user => {
+        const opt = document.createElement('option');
+        opt.value = user.id;
+        opt.textContent = user.email;
+        emailSelect.appendChild(opt);
+        // For assign-to dropdown, use name
+        const opt2 = document.createElement('option');
+        opt2.value = user.id;
+        opt2.textContent = user.name;
+        assignSelect.appendChild(opt2);
+      });
+      // Auto-fill name when email is selected
+      emailSelect.addEventListener('change', function() {
+        const selected = users.find(u => u.id === this.value);
+        document.getElementById('member-name').value = selected ? selected.name : '';
+      });
+    }
+
+    // Add Member form submit
+    document.getElementById('add-member-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const memberId = document.getElementById('member-email').value;
+      const name = document.getElementById('member-name').value;
+      const age = document.getElementById('member-age').value;
+      const gender = document.getElementById('member-gender').value;
+      // You may need to get parent_id from session or context
+      const parentId = window.currentUserId || 1; // Placeholder
+      const res = await fetch(API.addMember, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ parent_id: parentId, member_id: memberId, name, age, gender })
+      });
+      const msg = await res.text();
+      document.getElementById('add-member-msg').textContent = msg;
+      loadUsers(); // Refresh dropdowns
+    });
+
+    // Add Task form submit
+    document.getElementById('add-task-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const title = document.getElementById('task-title').value;
+      const description = document.getElementById('task-desc').value;
+      const assignedTo = document.getElementById('task-assigned').value;
+      const status = document.getElementById('task-status').value;
+      const res = await fetch(API.addTask, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description, assigned_to: assignedTo, status })
+      });
+      const msg = await res.text();
+      document.getElementById('add-task-msg').textContent = msg;
+      // Optionally refresh tasks
+    });
+
+    // Load Rewards
+    function loadRewards() {
+      fetch(API.getFamilyMembers)
+        .then(res => res.json())
+        .then(rewards => {
+          const tbody = document.querySelector('#rewards-table tbody');
+          tbody.innerHTML = '';
+          rewards.forEach(reward => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${reward.user_name || reward.user_id}</td>
+              <td>${reward.points}</td>
+              <td>${new Date(reward.last_updated).toLocaleString()}</td>
+              <td><button class="reward-btn" onclick="redeemReward('${reward.user_id}')">Redeem</button></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(() => {
+          document.querySelector('#rewards-table tbody').innerHTML = '<tr><td colspan="4">Failed to load rewards.</td></tr>';
+        });
+    }
+
+    // Redeem Reward
+    function redeemReward(user_id) {
+      fetch(API.redeemReward, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert('Reward redeemed!');
+        loadRewards();
+      })
+      .catch(() => {
+        alert('Failed to redeem reward.');
+      });
+    }
+  </script>
+</body>
+</html> 
