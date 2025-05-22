@@ -1,6 +1,7 @@
 import express from "express";
 import { pool } from "./db.ts";
 import userRouter from "./routes/userRoutes.ts";
+import taskRouter from "./routes/taskRoutes.ts";
 
 const app = express();
 app.use(express.json());
@@ -10,7 +11,11 @@ app.get("/", (req, res) => {
   res.send("Welcome to the PAMA - House Chore API!");
 });
 
+//REGISTER route
 app.use("/users", userRouter);
+
+//TASK route
+app.use("/tasks", taskRouter);
 
 // Optional: test DB connection route
 app.get("/db-test", async (_req, res) => {
