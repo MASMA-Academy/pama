@@ -1,9 +1,13 @@
 import express from "express";
-import { pool } from "./db.ts";
+import pool from "./db.ts";
 import userRouter from "./routes/userRoutes.ts";
 import taskRouter from "./routes/taskRoutes.ts";
+<<<<<<< Updated upstream
 import familyRouter from "./routes/familyRoutes.ts";
 
+=======
+import rewardRouter from "./routes/rewardRoutes.ts";
+>>>>>>> Stashed changes
 import { join, dirname, fromFileUrl } from "https://deno.land/std@0.203.0/path/mod.ts";
 
 const app = express();
@@ -28,6 +32,9 @@ app.use("/family", familyRouter);
 //TASK route
 app.use("/tasks", taskRouter);
 
+// REWARD route
+app.use("/rewards", rewardRouter);
+
 // Optional: test DB connection route
 app.get("/db-test", async (_req, res) => {
   let client;
@@ -36,7 +43,8 @@ app.get("/db-test", async (_req, res) => {
     const result = await client.queryObject("SELECT NOW() AS now");
     res.json({ dbTime: result.rows[0] });
   } catch (err) {
-    res.status(500).json({ error: "Database connection error", details: err.message });
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: "Database connection error", details: errorMessage });
   } finally {
     client?.release();
   }
@@ -49,8 +57,9 @@ async function testDbConnection() {
     client = await pool.connect();
     const result = await client.queryObject("SELECT NOW()");
     console.log("DB Connection successful! Current time:", result.rows[0]);
-  } catch (error) {
-    console.error("DB Connection failed:", error.message);
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error("DB Connection failed:", errorMessage);
   } finally {
     client?.release();
   }
