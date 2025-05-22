@@ -3,47 +3,59 @@ import { pool } from "../db.ts";
 
 // REGISTER TASK
 export const registerTask = async (req: Request, res: Response) => {
-  const { title, description, assigned_to, status } = req.body;
+  const { title, description, assigned_to, status, parent_id } = req.body;
 
-  if (!title || !description || !assigned_to || !status) {
+  if (!title || !description || !assigned_to || !status || !parent_id) {
     return res.status(400).json({ message: "All fields are required." });
   }
 
-  let chores;
+  let client;
   try {
-    chores = await pool.connect();
+    client = await pool.connect();
 
-    const result = await chores.queryObject(
-      "INSERT INTO task (title, description, assigned_to, status) VALUES ($1, $2, $3, $4) RETURNING id",
-      [title, description, assigned_to, status]
+    // Optional: Check if assigned_to is a valid linked family member of the parent
+    const linkCheck = await client.queryObject(
+      "SELECT * FROM familymembers WHERE parent_id = $1 AND member_id = $2",
+      [parent_id, assigned_to]
+    );
+
+    if (linkCheck.rows.length === 0) {
+      return res.status(403).json({
+        message: "Assigned member is not linked to this parent",
+      });
+    }
+
+    const result = await client.queryObject(
+      "INSERT INTO tasks (title, description, assigned_to, status, parent_id) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+      [title, description, assigned_to, status, parent_id]
     );
 
     const taskId = (result.rows[0] as any).id;
 
     return res.status(201).json({
       message: "Task registered",
-      user: { id: taskId, title, description, assigned_to, status },
+      task: { id: taskId, title, description, assigned_to, status, parent_id },
     });
 
   } catch (error) {
     return res.status(500).json({ message: "DB error", error: error.message });
   } finally {
-    chores?.release();
+    client?.release();
   }
 };
 
-// GET ALL TASK
+// GET ALL TASKS
 export const getAllTasks = async (_req: Request, res: Response) => {
-  let chores;
+  let client;
   try {
-    chores = await pool.connect();
-    const result = await chores.queryObject(
-      "SELECT id, title, description, assigned_to, status FROM task"
+    client = await pool.connect();
+    const result = await client.queryObject(
+      "SELECT id, title, description, assigned_to, status, parent_id FROM tasks"
     );
-    res.status(200).json({ task: result.rows });
+    res.status(200).json({ tasks: result.rows });
   } catch (error) {
     return res.status(500).json({ message: "DB error", error: error.message });
   } finally {
-    chores?.release();
+    client?.release();
   }
 };

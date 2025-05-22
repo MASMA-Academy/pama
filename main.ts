@@ -2,6 +2,8 @@ import express from "express";
 import { pool } from "./db.ts";
 import userRouter from "./routes/userRoutes.ts";
 import taskRouter from "./routes/taskRoutes.ts";
+import familyRouter from "./routes/familyRoutes.ts";
+
 import { join, dirname, fromFileUrl } from "https://deno.land/std@0.203.0/path/mod.ts";
 
 const app = express();
@@ -19,6 +21,9 @@ app.get("/", (req, res) => {
 
 //REGISTER route
 app.use("/users", userRouter);
+
+//FAMILY route
+app.use("/family", familyRouter);
 
 //TASK route
 app.use("/tasks", taskRouter);
