@@ -3,9 +3,9 @@ import { pool } from "../db.ts";
 
 // REGISTER USER
 export const registerUser = async (req: Request, res: Response) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, gender, age, role } = req.body;
 
-  if (!name || !email || !password) {
+  if (!name || !email || !password || !gender || !age || !role) {
     return res.status(400).json({ message: "All fields are required." });
   }
 
@@ -22,17 +22,16 @@ export const registerUser = async (req: Request, res: Response) => {
     }
 
     const result = await client.queryObject(
-      "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id",
-      [name, email, password]
+      "INSERT INTO users (name, email, password, gender, age, role) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+      [name, email, password, gender, age, role]
     );
 
     const userId = (result.rows[0] as any).id;
 
     return res.status(201).json({
       message: "User registered",
-      user: { id: userId, name, email },
+      user: { id: userId, name, email, password, gender, age, role },
     });
-
   } catch (error) {
     return res.status(500).json({ message: "DB error", error: error.message });
   } finally {
@@ -52,7 +51,7 @@ export const loginUser = async (req: Request, res: Response) => {
   try {
     client = await pool.connect();
     const result = await client.queryObject(
-      "SELECT id, name, email FROM users WHERE email = $1 AND password = $2",
+      "SELECT id, name, email, role FROM users WHERE email = $1 AND password = $2",
       [email, password]
     );
 
@@ -69,6 +68,7 @@ export const loginUser = async (req: Request, res: Response) => {
     client?.release();
   }
 };
+
 
 // GET ALL USERS
 export const getAllUsers = async (_req: Request, res: Response) => {
