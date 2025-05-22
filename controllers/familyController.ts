@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { pool } from "../db.ts";
 
+
 export const linkFamilyMember = async (req: Request, res: Response) => {
   const parentId = Number(req.params.parentId);
   const { memberEmail } = req.body;
@@ -28,24 +29,25 @@ export const linkFamilyMember = async (req: Request, res: Response) => {
     const memberId = memberResult.rows[0].id;
 
     // Check if already linked
-    const existsCheck = await client.queryObject(
-      "SELECT id FROM familymembers WHERE parent_id = $1 AND member_id = $2",
-      [parentId, memberId]
-    );
+      const existsCheck = await client.queryObject(
+        "SELECT id FROM familyMembers WHERE parent_id = $1 AND member_id = $2",
+        [parentId, memberId]
+      );
 
-    if (existsCheck.rows.length > 0) {
-      return res.status(409).json({ message: "Member already linked to parent" });
-    }
+      if (existsCheck.rows.length > 0) {
+        return res.status(409).json({ message: "Member already linked to parent" });
+      }
 
     // Link family member
     await client.queryObject(
-      "INSERT INTO familymembers (parent_id, member_id) VALUES ($1, $2)",
+      "INSERT INTO familyMembers (parent_id, member_id) VALUES ($1, $2)",
       [parentId, memberId]
     );
 
     res.status(200).json({ message: "Family member linked successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "DB error", error: error.message });
+  } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        res.status(500).json({ message: "Error updating family member", error: errorMessage });
   } finally {
     client?.release();
   }

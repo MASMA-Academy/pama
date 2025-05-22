@@ -15,7 +15,7 @@ export const registerTask = async (req: Request, res: Response) => {
 
     // Optional: Check if assigned_to is a valid linked family member of the parent
     const linkCheck = await client.queryObject(
-      "SELECT * FROM familymembers WHERE parent_id = $1 AND member_id = $2",
+      "SELECT * FROM familyMembers WHERE parent_id = $1 AND member_id = $2",
       [parent_id, assigned_to]
     );
 
@@ -37,8 +37,9 @@ export const registerTask = async (req: Request, res: Response) => {
       task: { id: taskId, title, description, assigned_to, status, parent_id },
     });
 
-  } catch (error) {
-    return res.status(500).json({ message: "DB error", error: error.message });
+  } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        res.status(500).json({ message: "Error updating reward", error: errorMessage });
   } finally {
     client?.release();
   }
@@ -53,8 +54,9 @@ export const getAllTasks = async (_req: Request, res: Response) => {
       "SELECT id, title, description, assigned_to, status, parent_id FROM tasks"
     );
     res.status(200).json({ tasks: result.rows });
-  } catch (error) {
-    return res.status(500).json({ message: "DB error", error: error.message });
+  } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        res.status(500).json({ message: "Error updating reward", error: errorMessage });
   } finally {
     client?.release();
   }

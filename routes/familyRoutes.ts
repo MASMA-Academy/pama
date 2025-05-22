@@ -3,6 +3,6 @@ import { linkFamilyMember } from "../controllers/familyController.ts";
 
 const router = Router();
 
-router.post("/users/:parentId/add-family", linkFamilyMember);
+router.post("/add/:parentId", linkFamilyMember);
 
 export default router;
