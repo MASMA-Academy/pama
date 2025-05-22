@@ -1,40 +1,7 @@
 import express from "express";
-
-import { load } from "https://deno.land/std@0.224.0/dotenv/mod.ts";
-import { Pool } from "https://deno.land/x/postgres@v0.19.3/mod.ts";
-
+import { pool } from "./db.ts";
 import userRouter from "./routes/userRoutes.ts";
-
-const env = await load();
-
-const pool = new Pool({
-  user: env.DB_USER,
-  password: env.DB_PASSWORD,
-  database: env.DB_NAME,
-  hostname: env.DB_HOST,
-  port: Number(env.DB_PORT),
-  tls: {
-    enabled: true,
-    enforce: false,
-  },
-}, 3, true);
-
-async function testDbConnection() {
-  let client;
-  try {
-    client = await pool.connect();  // Acquire client from pool
-    const result = await client.queryObject("SELECT NOW()");
-    console.log("✅ DB Connection successful! Current time:", result.rows[0]);
-  } catch (error) {
-    // Use error.message, pool has no .message
-    console.error("❌ DB Connection failed:", error.message);
-  } finally {
-    if (client) client.release();  // Release client back to pool
-  }
-}
-
-// Test DB connection on server start
-testDbConnection();
+import taskRouter from "./routes/taskRoutes.ts";
 
 const app = express();
 app.use(express.json());
@@ -44,15 +11,14 @@ app.get("/", (req, res) => {
   res.send("Welcome to the PAMA - House Chore API!");
 });
 
-// Details route
-app.get("/details", (req, res) => {
-  res.send(details);
-});
-
+//REGISTER route
 app.use("/users", userRouter);
 
-// Test DB connection route (optional)
-app.get("/db-test", async (req, res) => {
+//TASK route
+app.use("/tasks", taskRouter);
+
+// Optional: test DB connection route
+app.get("/db-test", async (_req, res) => {
   let client;
   try {
     client = await pool.connect();
@@ -61,9 +27,24 @@ app.get("/db-test", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Database connection error", details: err.message });
   } finally {
-    if (client) client.release();
+    client?.release();
   }
 });
+
+// Initial DB test when server starts
+async function testDbConnection() {
+  let client;
+  try {
+    client = await pool.connect();
+    const result = await client.queryObject("SELECT NOW()");
+    console.log("DB Connection successful! Current time:", result.rows[0]);
+  } catch (error) {
+    console.error("DB Connection failed:", error.message);
+  } finally {
+    client?.release();
+  }
+}
+testDbConnection();
 
 const PORT = 8000;
 app.listen(PORT, () => {
