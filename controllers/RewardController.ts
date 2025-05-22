@@ -1,22 +1,24 @@
 import { Request, Response } from 'express';
+import * as RewardModel from '../models/rewardModel.ts';
 
 let rewards: any[] = [];
 let rewardId = 1;
 
-export const createReward = (req: Request, res: Response) => {
-    const {reward, point} = req.body;
+export const createReward = async (req: Request, res: Response) => {
+    const {reward, points} = req.body;
 
-    if (!reward || !point) {
+    if ( !reward || !points) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
     const newReward = {
-      reward,
-      point,
+        reward,
+        points,
     };
+    
+    const result = await RewardModel.createReward (newReward);
 
-    rewards.push(newReward);
-    return res.status(201).json({ message: "Reward created successfully", reward: newReward });
+    return res.status(201).json({ message: "Reward created successfully", reward: result });
 } 
 
 export const updateReward = (req: Request, res: Response) => {

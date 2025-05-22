@@ -1,9 +1,13 @@
 import express from "express";
-import { pool } from "./db.ts";
+import pool from "./db.ts";
 import userRouter from "./routes/userRoutes.ts";
 import taskRouter from "./routes/taskRoutes.ts";
+<<<<<<< Updated upstream
 import familyRouter from "./routes/familyRoutes.ts";
 
+=======
+import rewardRouter from "./routes/rewardRoutes.ts";
+>>>>>>> Stashed changes
 import { join, dirname, fromFileUrl } from "https://deno.land/std@0.203.0/path/mod.ts";
 
 const app = express();
@@ -27,6 +31,9 @@ app.use("/family", familyRouter);
 
 //TASK route
 app.use("/tasks", taskRouter);
+
+// REWARD route
+app.use("/rewards", rewardRouter);
 
 // Optional: test DB connection route
 app.get("/db-test", async (_req, res) => {

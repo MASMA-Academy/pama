@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { createReward, updateReward, deleteReward, getAllRewards } from "../controllers/RewardController.ts";
+import { createReward, updateReward, deleteReward, getAllRewards } from "../controllers/rewardController.ts";
 
 const router = Router();
 
-router.post("/createReward", createReward);
-router.post("/updateReward", updateReward);
-router.post("/deleteReward", deleteReward);
+router.post("/create", createReward);
+router.post("/update", updateReward);
+router.post("/delete", deleteReward);
 
 router.get("/", getAllRewards);
 

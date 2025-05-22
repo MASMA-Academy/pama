@@ -15,3 +15,5 @@ export const pool = new Pool({
     enforce: false,
   },
 }, 3, true);
+
+export default pool;
