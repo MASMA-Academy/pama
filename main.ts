@@ -1,8 +1,47 @@
 // @ts-types="npm:@types/express@4.17.15"
 import express from "express";
-import details from "./details.json" with { type: "json" };
-import { familyDetailRouter } from "./router/familyDetailRoute.ts";
-import { choresRouter } from "./router/ChoresRoute.ts"; 
+
+import { load } from "https://deno.land/std@0.224.0/dotenv/mod.ts";
+import { Pool } from "https://deno.land/x/postgres@v0.19.3/mod.ts";
+
+import userRouter from "./routes/userRoutes.ts";
+import rewardRouter from "./routes/rewardRoutes.ts";
+import { getAllRewards } from "./controllers/RewardController.ts";
+
+const env = await load();
+
+const pool = new Pool({
+  user: env.DB_USER,
+  password: env.DB_PASSWORD,
+  database: env.DB_NAME,
+  hostname: env.DB_HOST,
+  port: Number(env.DB_PORT),
+  tls: {
+    enabled: true,
+    enforce: false,
+  },
+}, 3, true);
+
+async function testDbConnection() {
+  let client;
+  try {
+    client = await pool.connect();  // Acquire client from pool
+    const result = await client.queryObject("SELECT NOW()");
+    console.log("✅ DB Connection successful! Current time:", result.rows[0]);
+  } catch (error) {
+    // Use error.message, pool has no .message
+    if (error instanceof Error) {
+      console.error("❌ DB Connection failed:", error.message);
+    } else {
+      console.error("❌ DB Connection failed:", error);
+    }
+  } finally {
+    if (client) client.release();  // Release client back to pool
+  }
+}
+
+// Test DB connection on server start
+testDbConnection();
 
 const app = express();
 app.use(express.json());
@@ -12,13 +51,25 @@ app.get("/", (req, res) => {
   res.send("Welcome to the PAMA - House Chore API!");
 });
 
-app.get("/details", (req, res) => {
-  res.send(details);
+app.use("/users", userRouter);
+app.use("/rewards", rewardRouter);
+
+// Test DB connection route (optional)
+app.get("/db-test", async (req, res) => {
+  let client;
+  try {
+    client = await pool.connect();
+    const result = await client.queryObject("SELECT NOW() AS now");
+    res.json({ dbTime: result.rows[0] });
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: "Database connection error", details: errorMessage });
+  } finally {
+    if (client) client.release();
+  }
 });
 
-app.use("/family-details", familyDetailRouter);
-app.use("/chores", choresRouter);
-
-app.listen(8000, () => {
-  console.log(`Server is running on http://localhost:8000`);
+const PORT = 8000;
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
