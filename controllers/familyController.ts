@@ -30,7 +30,7 @@ export const linkFamilyMember = async (req: Request, res: Response) => {
 
     // Check if already linked
       const existsCheck = await client.queryObject(
-        "SELECT id FROM familyMembers WHERE parent_id = $1 AND member_id = $2",
+        "SELECT id FROM familymembers WHERE parent_id = $1 AND member_id = $2",
         [parentId, memberId]
       );
 
@@ -40,7 +40,7 @@ export const linkFamilyMember = async (req: Request, res: Response) => {
 
     // Link family member
     await client.queryObject(
-      "INSERT INTO familyMembers (parent_id, member_id) VALUES ($1, $2)",
+      "INSERT INTO familymembers (parent_id, member_id) VALUES ($1, $2)",
       [parentId, memberId]
     );
 

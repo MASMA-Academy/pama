@@ -32,8 +32,9 @@ export const registerUser = async (req: Request, res: Response) => {
       message: "User registered",
       user: { id: userId, name, email, password, gender, age, role },
     });
-  } catch (error) {
-    return res.status(500).json({ message: "DB error", error: error.message });
+  } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        res.status(500).json({ message: "User Registered Failed", error: errorMessage });
   } finally {
     client?.release();
   }
@@ -62,8 +63,9 @@ export const loginUser = async (req: Request, res: Response) => {
     const user = result.rows[0];
     res.status(200).json({ message: "Login successful", user });
 
-  } catch (error) {
-    return res.status(500).json({ message: "DB error", error: error.message });
+  } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        res.status(500).json({ message: "DB Error", error: errorMessage });
   } finally {
     client?.release();
   }
@@ -79,8 +81,9 @@ export const getAllUsers = async (_req: Request, res: Response) => {
       "SELECT id, name, email FROM users"
     );
     res.status(200).json({ users: result.rows });
-  } catch (error) {
-    return res.status(500).json({ message: "DB error", error: error.message });
+  } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        res.status(500).json({ message: "DB Error", error: errorMessage });
   } finally {
     client?.release();
   }
